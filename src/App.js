@@ -13,36 +13,56 @@ function App() {
       email: "nomidev@me.com",
       password: "Secret123",
       cnic: "3520241445273",
+      loginAttempts: 0
     },
   ];
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedInUserName, setloggedInUserName] = useState('');
   const [message, setMessage] = useState('');
   const [page, setPage] = useState("login");
 
-  const handleLogin = (loginUser) => {
-    const regUser = registeredUsers.filter((user) => {
-      return loginUser.email === user.email && loginUser.password === user.password
+  const handleLogin = (user) => {
+    let _user = registeredUsers.filter((regUser) => {
+      return user.email === user.email && user.password === regUser.password
     })
 
-    
-    if (regUser.length > 0) {
+    if (_user.length > 0) {
       setIsLoggedIn(true);
+      setloggedInUserName(_user[0]['name'])
     } else {
       setMessage('The user is not registered')
     }
   };
 
+  const handleLogout = (user) => {
+    setIsLoggedIn(false);
+    setloggedInUserName('')
+  };
+
   const handleShowPage = (page) => {
-    // console.log(page);
     setPage(page)
   };
 
   return (
     <div className="App">
-      <Header setShowPage={handleShowPage}/>
-      {isLoggedIn ? <><h2>Dashboard</h2><p>Users List</p></> : 
-      (page == 'login' ? <Login loginUser={handleLogin} showMessage={message}/> : <Signup loginUser={handleLogin} showMessage={message}/>)}
+      <Header 
+        routePageAction={handleShowPage} 
+        showLoggedInUserName={loggedInUserName} 
+        logoutAction={handleLogout}
+      />
+      {isLoggedIn ? 
+        <><h2>Dashboard</h2><p>Users List</p></> : 
+        (page == 'login' ? 
+          <Login 
+            loginUser={handleLogin} 
+            showMessage={message}
+          /> : 
+          <Signup 
+            loginUser={handleLogin} 
+            showMessage={message}
+          />
+        )}
 
     </div>
   );
