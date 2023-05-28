@@ -12,7 +12,8 @@ function App() {
       name: "Nauman Bashir",
       email: "nomidev@me.com",
       password: "Secret123",
-      cnic: "3520241445273",
+      address: "House # 123 Queens Road",
+      cnic: "1234567891234",
       loginAttempts: 0
     },
   ];
@@ -21,15 +22,37 @@ function App() {
   const [loggedInUserName, setloggedInUserName] = useState('');
   const [message, setMessage] = useState('');
   const [page, setPage] = useState("login");
+  const [successMsg, setSuccessMsg] = useState('');
+  const [users, setUsers] = useState(registeredUsers);
 
-  const handleLogin = (user) => {
-    let _user = registeredUsers.filter((regUser) => {
-      return user.email === user.email && user.password === regUser.password
+
+  const handleUserRegistration = (user) => {
+    let registeredUser = registeredUsers.filter((regUser) => {
+      return user.email === regUser.email
     })
 
-    if (_user.length > 0) {
+    if (registeredUser.length > 0) {
+      setMessage('The user is already registered!');
+      return;
+    }
+
+    user.loginAttempts = 0;
+
+    
+    setUsers([...users, user]);
+    setSuccessMsg('You have signed up successfully!');
+
+    console.log(users);
+  }
+
+  const handleLogin = (user) => {
+    let registeredUser = users.filter((regUser) => {
+      return user.email === regUser.email && user.password === regUser.password
+    })
+
+    if (registeredUser.length > 0) {
       setIsLoggedIn(true);
-      setloggedInUserName(_user[0]['name'])
+      setloggedInUserName(registeredUser[0]['name'])
     } else {
       setMessage('The user is not registered')
     }
@@ -59,8 +82,10 @@ function App() {
             showMessage={message}
           /> : 
           <Signup 
-            loginUser={handleLogin} 
+            registerUser={handleUserRegistration} 
             showMessage={message}
+            showSuccess={successMsg}
+            redirectPage={handleShowPage}
           />
         )}
 

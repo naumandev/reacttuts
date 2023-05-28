@@ -3,54 +3,136 @@ import { Form, Button } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 
 function Signup(props) {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [showErrorAlert, setShowErrorAlert] = useState('');
+  const [address, setAddress] = useState("");
+  const [cnic, setCnic] = useState(null);
+  const [errors, setErrors] = useState([]);
+  const [showSuccessAlert, setShowSuccessAlert] = useState('');
 
   
-  const handleSubmit = (e) => {
+  const handleRegistration = (e) => {
     e.preventDefault();
-    if(email.length < 1) {
-      showErrorMessageAlert('Email field is required.');
+
+    let validator = FormValidation();
+    
+    if (validator.error) {
+      setErrors(validator.messages)
       return;
     }
-    if(password.length < 1) {
-      showErrorMessageAlert('Password field is required.');
-      return;
+    
+    props.registerUser({ username, email, password, address, cnic });
+
+    if (props.showMessage) {
+      showError(props.showMessage);
     }
-    console.log('jsdkfjldsjfd')
-    props.loginUser({ email, password });
-    showErrorMessageAlert(props.showMessage);
+
+    if (props.showSuccess) {
+      setUsername('');
+      setEmail('');
+      setAddress('');
+      setCnic('');
+      setShowSuccessAlert(props.showSuccess);
+      setTimeout(() => {
+        props.redirectPage('login')
+      }, 3000)
+    }
+
+    setErrors([]);
+
+  };
+
+  const FormValidation = () => {
+
+    let response = {
+      error: false, 
+      messages: []
+    }
+
+    if (!username) {
+      response.error = true;
+      response.messages.push('Name field is required!');
+    }
+
+    if (!validateEmail(email)) {
+      response.error = true;
+      response.messages.push('Invalid Email provided!');
+    }
+
+    if (password.length < 7) {
+      response.error = true;
+      response.messages.push('Invalid Password provided!');
+    }
+
+    if (!address) {
+      response.error = true;
+      response.messages.push('Address field is required!');
+    }
+
+    if (!validateFileUpload(cnic)) {
+      response.error = true;
+      response.messages.push('Invalid file format. Please select a PDF file!');
+    }
+
+    return response;
+  }
+
+  const validateFileUpload = (file) => {
+    return (!file || file.type !== 'application/pdf');
+  };
+
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
   };
 
   useEffect(() => {
-    console.log('myProp changed:', props.showMessage);
-    showErrorMessageAlert(props.showMessage);
+    setErrors('');
+
+    if (props.showMessage) {
+      showError(props.showMessage);
+    }
   }, [props.showMessage]);
 
-  const showErrorMessageAlert = (message) => {
-    setShowAlert(true);
-    setShowErrorAlert(message);
-    setTimeout(() => {
-      setShowErrorAlert('');
-    }, 3000);
+
+  const showError = (message) => {
+    const newError = [...errors, message];
+    setErrors(newError);
+  };
+
+  const closeErrorAlert = (index) => {
+    const newError = [...errors];
+    newError.splice(index, 1);
+    setErrors(newError);
   };
 
   return (
     <div className="row mt-5">
       <div className="col-6 mx-auto">
         <h2>Sign Up</h2>
-        {showErrorAlert && (
-          <Alert
-            variant="danger"
-            onClose={() => setShowAlert(false)}
-            dismissible
-          >
-            {showErrorAlert}
+
+        {errors && (errors.map((message, index) => (
+          <Alert key={index} variant="danger" onClick={() => closeErrorAlert(index)} dismissible>
+            {message}
+          </Alert>
+        )))}
+
+        {showSuccessAlert && (
+          <Alert variant="success" dismissible>
+            {showSuccessAlert}
           </Alert>
         )}
-        <Form onSubmit={handleSubmit}>
+
+        <Form onSubmit={handleRegistration}>
+          <Form.Group controlId="username">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </Form.Group>
           <Form.Group controlId="email">
             <Form.Label>Email</Form.Label>
             <Form.Control
@@ -68,8 +150,23 @@ function Signup(props) {
               onChange={(e) => setPassword(e.target.value)}
             />
           </Form.Group>
+          <Form.Group controlId="address">
+            <Form.Label>Address</Form.Label>
+            <Form.Control
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group controlId="cnic">
+            <Form.Label>CNIC</Form.Label>
+            <Form.Control
+              type="file"
+              onChange={(e) => setCnic(e.target.value)}
+            />
+          </Form.Group>
           <Button type="submit" className="mt-2">
-            Login
+            Sign Up
           </Button>
         </Form>
       </div>

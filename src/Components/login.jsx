@@ -5,49 +5,72 @@ import Alert from "react-bootstrap/Alert";
 function Login(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [showErrorAlert, setShowErrorAlert] = useState('');
+  const [errors, setErrors] = useState([]);
 
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(email.length < 1) {
-      showErrorMessageAlert('Email field is required.');
+    
+    let validator = FormValidation();
+    
+    if (validator.error) {
+      setErrors(validator.messages)
       return;
     }
-    if(password.length < 1) {
-      showErrorMessageAlert('Password field is required.');
-      return;
-    }
+
     props.loginUser({ email, password });
-    showErrorMessageAlert(props.showMessage);
+
+    if (props.showSuccess) {
+      showError(props.showMessage);
+    }
   };
 
+  const FormValidation = () => {
+
+    let response = {
+      error: true, 
+      messages: []
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!email) response.messages.push('Email field is requiredd!');
+    if (!password) response.messages.push('Password field is requiredd!');
+
+    if (email && !emailPattern.test(email)) response.messages.push('Invalid Email provided!');
+
+    if (response.messages.length == 0) response.error = false;
+
+    return response;
+  }
+
   useEffect(() => {
-    console.log('myProp changed:', props.showMessage);
-    showErrorMessageAlert(props.showMessage);
+    if (props.showMessage) {
+      showError(props.showMessage);
+    }
   }, [props.showMessage]);
 
-  const showErrorMessageAlert = (message) => {
-    setShowAlert(false);
-    setShowErrorAlert(message);
-    setTimeout(() => {
-      setShowErrorAlert('');
-    }, 3000);
+
+  const showError = (message) => {
+    const newError = [...errors, message];
+    setErrors(newError);
+  };
+
+  const closeErrorAlert = (index) => {
+    const newError = [...errors];
+    newError.splice(index, 1);
+    setErrors(newError);
   };
 
   return (
     <div className="row mt-5">
       <div className="col-6 mx-auto">
-        {showErrorAlert && (
-          <Alert
-            variant="danger"
-            onClose={() => setShowAlert(false)}
-            dismissible
-          >
-            {showErrorAlert}
+        {errors && (errors.map((message, index) => (
+          <Alert key={index} variant="danger" onClick={() => closeErrorAlert(index)} dismissible>
+            {message}
           </Alert>
-        )}
+        )))}
+
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="email">
             <Form.Label>Email</Form.Label>
