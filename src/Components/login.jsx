@@ -19,10 +19,8 @@ function Login(props) {
     }
 
     props.loginUser({ email, password });
-
-    if (props.showSuccess) {
-      showError(props.showMessage);
-    }
+    showError(props.showMessage);
+    
   };
 
   const FormValidation = () => {
@@ -40,16 +38,9 @@ function Login(props) {
     if (email && !emailPattern.test(email)) response.messages.push('Invalid Email provided!');
 
     if (response.messages.length == 0) response.error = false;
-
+    
     return response;
   }
-
-  useEffect(() => {
-    if (props.showMessage) {
-      showError(props.showMessage);
-    }
-  }, [props.showMessage]);
-
 
   const showError = (message) => {
     const newError = [...errors, message];

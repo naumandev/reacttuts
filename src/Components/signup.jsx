@@ -23,10 +23,7 @@ function Signup(props) {
     }
     
     props.registerUser({ username, email, password, address, cnic });
-
-    if (props.showMessage) {
-      showError(props.showMessage);
-    }
+    showError(props.showMessage);
 
     if (props.showSuccess) {
       setUsername('');
@@ -38,8 +35,6 @@ function Signup(props) {
         props.redirectPage('login')
       }, 3000)
     }
-
-    setErrors([]);
 
   };
 
@@ -86,14 +81,6 @@ function Signup(props) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailPattern.test(email);
   };
-
-  useEffect(() => {
-    setErrors('');
-
-    if (props.showMessage) {
-      showError(props.showMessage);
-    }
-  }, [props.showMessage]);
 
 
   const showError = (message) => {

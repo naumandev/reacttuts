@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Header from './Components/header';
 import Login from './Components/login'
 import Signup from './Components/signup'
+import ListView from './Components/list-view'
 
 function App() {
 
@@ -38,24 +39,34 @@ function App() {
 
     user.loginAttempts = 0;
 
-    
     setUsers([...users, user]);
-    setSuccessMsg('You have signed up successfully!');
-
-    console.log(users);
+    setSuccessMsg(user.name + ' have signed up successfully!');
   }
 
   const handleLogin = (user) => {
-    let registeredUser = users.filter((regUser) => {
-      return user.email === regUser.email && user.password === regUser.password
+    let registeredUser = users.find((regUser) => {
+      return user.email === regUser.email
     })
 
-    if (registeredUser.length > 0) {
-      setIsLoggedIn(true);
-      setloggedInUserName(registeredUser[0]['name'])
-    } else {
+    if (!registeredUser) {
       setMessage('The user is not registered')
+      return;
     }
+
+    if (registeredUser.loginAttempts >= 3) {
+      setMessage('You have been blocked!')
+      return
+    }
+
+    if (user.password !== registeredUser.password) {
+      setMessage('The password is incorrect')
+      registeredUser.loginAttempts += 1
+      console.log(registeredUser.loginAttempts);
+      return
+    }
+
+    setIsLoggedIn(true);
+    setloggedInUserName(registeredUser.name)
   };
 
   const handleLogout = (user) => {
@@ -75,7 +86,9 @@ function App() {
         logoutAction={handleLogout}
       />
       {isLoggedIn ? 
-        <><h2>Dashboard</h2><p>Users List</p></> : 
+        <ListView 
+          users={users}
+        /> : 
         (page == 'login' ? 
           <Login 
             loginUser={handleLogin} 
