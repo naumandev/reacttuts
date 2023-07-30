@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import Alert from "react-bootstrap/Alert";
 
@@ -37,7 +37,7 @@ function Login(props) {
 
     if (email && !emailPattern.test(email)) response.messages.push('Invalid Email provided!');
 
-    if (response.messages.length == 0) response.error = false;
+    if (response.messages.length === 0) response.error = false;
     
     return response;
   }

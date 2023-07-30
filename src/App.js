@@ -89,7 +89,7 @@ function App() {
         <ListView 
           users={users}
         /> : 
-        (page == 'login' ? 
+        (page === 'login' ?
           <Login 
             loginUser={handleLogin} 
             showMessage={message}
